@@ -9,6 +9,9 @@ import csv
 import re
 from datetime import datetime
 
+# --- Directorio base del proyecto ---
+BASE_DIR = os.getcwd()
+
 # --- Constantes por defecto del crawler ---
 SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
 
@@ -16,6 +19,12 @@ COUNTRIES_QUERY = [
     'site:.ar', 'site:.cl', 'site:.co', 'site:.pe', 'site:.uy',
     'site:.bo', 'site:.py', 'site:.ve', 'site:.ec'
 ]
+
+# --- Archivos con rutas absolutas ---
+CONFIG_PATH = os.path.join(BASE_DIR, "scrapinglatam", "crawler_config.json")
+DEFAULT_CATEGORIES_PATH = os.path.join(BASE_DIR, "scrapinglatam", "default_categories.json")
+OUTPUT_CSV = os.path.join(BASE_DIR, "scrapinglatam", "latam_leads.csv")
+AUDIT_PATH = os.path.join(BASE_DIR, "scrapinglatam", "audits", "latam_audit.ndjson")
 
 def load_defaults(path, fallback):
     """Carga un JSON con lista de defaults, si no existe devuelve fallback."""
@@ -385,3 +394,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n[INFO] Proceso detenido por el usuario.")
+
