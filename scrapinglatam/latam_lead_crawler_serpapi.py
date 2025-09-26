@@ -234,4 +234,160 @@ def pick_best_email(emails, domain):
         scored.append((prefer_score, same_domain, local_len, e))
     if not scored:
         return emails[0]
-    scored.sort(key=lambda t: (t[0] if t[0] >= 0 else 999,
+    scored.sort(key=lambda t: (t[0] if t[0] >= 0 else 999, t[1], t[2]))
+    return scored[0][3]
+
+async def fetch_serpapi(query, params):
+    try:
+        search = GoogleSearch(params)
+        results = search.get_dict()
+        return results.get("organic_results", [])
+    except Exception as e:
+        print(f"[ERROR] SerpAPI para '{query}': {e}")
+        return []
+
+async def fetch_website_emails(session, url, priority):
+    domain_info = tldextract.extract(url)
+    domain = (domain_info.domain + "." + domain_info.suffix).lower()
+
+    if not should_process(domain):
+        print(f"[SKIP] Dominio ya procesado recientemente: {domain}")
+        return None
+
+    start_time = time.time()
+    http_status = None
+    exclusion_flag = 'N'
+    emails_found = []
+    phones_found = []
+
+    try:
+        async with session.get(url, ssl=False, timeout=15) as response:
+            http_status = response.status
+            content = await response.text(errors="ignore")
+            emails_found = clean_emails(EMAIL_RE.findall(content))
+            phones_found = list(dict.fromkeys(m.strip() for m in PHONE_RE.findall(content)))
+    except asyncio.TimeoutError:
+        http_status = "Timeout"
+        exclusion_flag = 'Y'
+        print(f"[WEB] Timeout al acceder a {url}")
+    except aiohttp.ClientError as e:
+        http_status = "Error"
+        exclusion_flag = 'Y'
+        print(f"[WEB] Error al acceder a {url}: {e}")
+    except Exception as e:
+        http_status = "Error"
+        exclusion_flag = 'Y'
+        print(f"[WEB] Error genérico en {url}: {e}")
+
+    duration_ms = int((time.time() - start_time) * 1000)
+    email_best = pick_best_email(emails_found, domain) if emails_found else ""
+
+    ensure_dir_for(AUDIT_PATH)
+    audit_event = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+        "domain": domain,
+        "url": url,
+        "http_status": http_status,
+        "duration_ms": duration_ms,
+        "emails_found": emails_found,
+        "email_best": email_best,
+        "phones_found": phones_found,
+        "priority": priority,
+        "exclusion_flag": exclusion_flag,
+        "last_seen": datetime.now().isoformat(),
+    }
+    with open(AUDIT_PATH, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(audit_event, ensure_ascii=False) + '\n')
+
+    if not emails_found:
+        return None
+
+    mark_processed(domain)
+
+    return {
+        "query": "",
+        "country": "",
+        "category": "",
+        "domain": domain,
+        "homepage_url": url,
+        "http_status": http_status,
+        "duration_ms": duration_ms,
+        "emails_all": ", ".join(emails_found),
+        "email_best": email_best,
+        "phones": ", ".join(phones_found),
+        "priority": priority,
+        "last_seen": datetime.now().isoformat(),
+        "email_sent": "No"
+    }
+
+async def process_query(session, query, params, csv_writer):
+    print(f"[QUERY] Buscando para: '{query}'")
+    search_results = await fetch_serpapi(query, params)
+    if not search_results:
+        print(f"[QUERY] Sin resultados para: '{query}'")
+        return
+
+    tasks = []
+    for result in search_results:
+        url = result.get("link")
+        if url:
+            tasks.append(fetch_website_emails(session, url, priority=result.get("position")))
+
+    results = await asyncio.gather(*tasks)
+
+    for row in results:
+        if not row:
+            continue
+
+        # Añadir datos de query
+        row["query"] = query
+        category, country = split_query(query)
+        row["category"] = category
+        row["country"] = country
+        row["email_sent"] = "No"
+
+        # Asegurar todos los campos
+        for k in FIELDNAMES:
+            row.setdefault(k, "")
+        csv_writer.writerow(row)
+
+async def main():
+    load_config_overrides()
+    if not SERPAPI_KEY:
+        print("[ERROR] Debes definir SERPAPI_KEY en el entorno.")
+        return
+
+    load_seen_domains()
+
+    queries_to_run = get_query_permutations()
+    queries_to_run = queries_to_run[:MAX_QUERIES]
+
+    ensure_dir_for(AUDIT_PATH)
+    csvfile, csv_writer = open_csv_with_schema(OUTPUT_CSV, FIELDNAMES)
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            for query in queries_to_run:
+                params = {
+                    "engine": "google",
+                    "q": query,
+                    "api_key": SERPAPI_KEY,
+                    "num": RESULTS_PER_QUERY,
+                }
+                await process_query(session, query, params, csv_writer)
+                csvfile.flush()
+                time.sleep(1)
+    finally:
+        try:
+            csvfile.flush()
+            csvfile.close()
+        except Exception:
+            pass
+
+    print(f"[INFO] Proceso completado. Resultados guardados en {OUTPUT_CSV}")
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n[INFO] Proceso detenido por el usuario.")
