@@ -11,7 +11,7 @@ from datetime import datetime
 
 # --- Directorio base del proyecto ---
 BASE_DIR = os.getcwd()
-
+sys.path.append(BASE_DIR)
 # --- Constantes por defecto del crawler ---
 SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
 
@@ -394,4 +394,5 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n[INFO] Proceso detenido por el usuario.")
+
 
