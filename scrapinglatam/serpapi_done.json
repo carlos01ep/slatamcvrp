@@ -1,0 +1,608 @@
+{
+  "version": 2,
+  "queries": {
+    "site:.ar \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282521,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "uca.edu.ar",
+        "unam.edu.ar",
+        "unlp.edu.ar",
+        "cin.edu.ar",
+        "ucc.edu.ar",
+        "ub.edu.ar",
+        "austral.edu.ar",
+        "unc.edu.ar",
+        "unvm.edu.ar",
+        "uno.edu.ar"
+      ]
+    },
+    "site:.ar \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282533,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "palihuegolfclub.com.ar",
+        "fedegolfcba.com.ar",
+        "cuba.org.ar",
+        "fgsl.org.ar",
+        "aag.org.ar",
+        "mdp.edu.ar"
+      ]
+    },
+    "site:.ar \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282541,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "deportivorincon.com.ar",
+        "deportivomoron.com.ar",
+        "afa.com.ar",
+        "clublapampa.com.ar",
+        "clubmacallister.com.ar",
+        "clubgodoycruz.com.ar",
+        "clubelnacional.com.ar",
+        "cdbasquetfemenino.com.ar"
+      ]
+    },
+    "site:.ar \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282550,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "esbrandingconsultora.com.ar",
+        "ahoramarketing.com.ar",
+        "comunicacionpractica.com.ar",
+        "contactco.com.ar",
+        "ciamericana.com.ar",
+        "softys.com.ar",
+        "cmgdistribuciones.com.ar",
+        "buonanotte.com.ar",
+        "prodiet.com.ar",
+        "stamboulian.com.ar"
+      ]
+    },
+    "site:.cl \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282565,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "uchile.cl",
+        "uahurtado.cl",
+        "upla.cl",
+        "usach.cl",
+        "usm.cl",
+        "ust.cl",
+        "udd.cl",
+        "uc.cl",
+        "usek.cl",
+        "umayor.cl"
+      ]
+    },
+    "site:.cl \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282591,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "cmfchile.cl",
+        "golflasbrisas.cl",
+        "golfmilitar.cl",
+        "chilegolf.cl",
+        "lapalabraisraelita.cl",
+        "daemvillarrica.cl",
+        "ucentral.cl",
+        "atacamaenlinea.cl"
+      ]
+    },
+    "site:.cl \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282600,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "stmsportsclub.cl",
+        "ind.cl",
+        "cmfchile.cl",
+        "losdiablosrojos.cl",
+        "cdudec.cl",
+        "clubdeportivonacional.cl",
+        "nacionalrosario.cl",
+        "lacatolica.cl",
+        "ohigginsfc.cl"
+      ]
+    },
+    "site:.cl \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282608,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "centrocontactointegral.cl",
+        "buk.cl",
+        "cebra.cl",
+        "ceodata.cl",
+        "cirishosting.cl",
+        "ikons.cl",
+        "act.cl",
+        "softys.cl",
+        "sernac.cl",
+        "az.cl"
+      ]
+    },
+    "site:.co \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282640,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "udistrital.edu.co",
+        "unal.edu.co",
+        "usantotomas.edu.co",
+        "eafit.edu.co",
+        "utp.edu.co",
+        "uniandes.edu.co",
+        "unisabana.edu.co",
+        "unab.edu.co",
+        "uao.edu.co",
+        "udes.edu.co"
+      ]
+    },
+    "site:.co \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282652,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "usergioarboleda.edu.co",
+        "poli.edu.co",
+        "manizales.gov.co",
+        "asohofrucol.com.co",
+        "rionegro.gov.co",
+        "umb.edu.co",
+        "google.com",
+        "litoral.edu.co",
+        "uniremington.edu.co",
+        "cvc.gov.co"
+      ]
+    },
+    "site:.co \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282664,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "ucundinamarca.edu.co",
+        "gimnasiomoderno.edu.co",
+        "emmanuelfc.co",
+        "icbf.gov.co",
+        "imer.gov.co",
+        "colsenora.edu.co",
+        "colinglesibague.edu.co",
+        "mindeporte.gov.co",
+        "nodoka.co",
+        "micolombiadigital.gov.co"
+      ]
+    },
+    "site:.co \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282673,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "proveer.com.co",
+        "peoplecontact.com.co",
+        "esu.com.co",
+        "lasu.com.co",
+        "activa.com.co",
+        "datacreditoempresas.com.co",
+        "cens.com.co",
+        "ecopetrol.com.co",
+        "enterritorio.gov.co"
+      ]
+    },
+    "site:.pe \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282694,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "up.edu.pe",
+        "ulima.edu.pe",
+        "unitru.edu.pe",
+        "www.gob.pe",
+        "uma.edu.pe",
+        "undar.edu.pe",
+        "upsjb.edu.pe",
+        "upn.edu.pe",
+        "unsm.edu.pe",
+        "pucp.edu.pe"
+      ]
+    },
+    "site:.pe \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282704,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "cclp.pe",
+        "datosabiertos.gob.pe",
+        "clublaplanicie.pe",
+        "ipd.gob.pe",
+        "www.gob.pe",
+        "congreso.gob.pe",
+        "upc.edu.pe",
+        "unsa.edu.pe"
+      ]
+    },
+    "site:.pe \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282737,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "adfp.pe",
+        "www.gob.pe",
+        "usil.edu.pe",
+        "unh.edu.pe",
+        "prensaregional.pe",
+        "datosabiertos.gob.pe",
+        "unsm.edu.pe",
+        "pucp.edu.pe"
+      ]
+    },
+    "site:.pe \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282744,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "www.gob.pe",
+        "hostingweb.pe",
+        "enaco.com.pe",
+        "nettix.com.pe",
+        "interbank.pe",
+        "sunat.gob.pe",
+        "upc.edu.pe",
+        "visioncenter.com.pe"
+      ]
+    },
+    "site:.uy \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282763,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "udelar.edu.uy",
+        "ort.edu.uy",
+        "psico.edu.uy",
+        "ucu.edu.uy",
+        "uneatlantico.uy",
+        "um.edu.uy",
+        "claeh.edu.uy",
+        "fmed.edu.uy",
+        "eumus.edu.uy"
+      ]
+    },
+    "site:.uy \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282797,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "cgu.uy",
+        "aug.org.uy",
+        "www.gub.uy",
+        "descubrimontevideo.uy",
+        "clubnaval.com.uy",
+        "ceaosa.com.uy",
+        "montevideo.gub.uy"
+      ]
+    },
+    "site:.uy \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282811,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "auf.org.uy",
+        "juventud.uy",
+        "fsc.org.uy",
+        "aebu.org.uy",
+        "fosmetal.org.uy",
+        "ofi.com.uy",
+        "apu.uy"
+      ]
+    },
+    "site:.uy \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282844,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "interacciona.com.uy",
+        "softys.com.uy",
+        "antel.com.uy",
+        "gestorimax.com.uy",
+        "pwc.com.uy",
+        "google.com.uy",
+        "cutcsa.com.uy",
+        "intersys.uy",
+        "lepal.uy",
+        "ieem.edu.uy"
+      ]
+    },
+    "site:.bo \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282876,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "udabol.edu.bo",
+        "umsa.bo",
+        "uajms.edu.bo",
+        "ucb.edu.bo",
+        "unifranz.edu.bo",
+        "uasb.edu.bo",
+        "usfa.edu.bo",
+        "upal.edu.bo",
+        "usfx.bo"
+      ]
+    },
+    "site:.bo \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282886,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "umsa.bo",
+        "fcbc.org.bo",
+        "ahoraelpueblo.bo",
+        "bcb.gob.bo",
+        "eldia.com.bo",
+        "ibce.org.bo",
+        "laizquierdadiario.com.bo",
+        "lapaz.bo"
+      ]
+    },
+    "site:.bo \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282919,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "cdaurora.com.bo",
+        "clubthestrongest.bo",
+        "gruposion.bo",
+        "ucb.edu.bo",
+        "umss.edu.bo",
+        "granchaco.gob.bo",
+        "entel.bo",
+        "oruro.gob.bo"
+      ]
+    },
+    "site:.bo \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282933,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "entel.bo",
+        "maplenet.com.bo",
+        "emapa.gob.bo",
+        "aduana.gob.bo",
+        "easba.gob.bo",
+        "comibol.gob.bo",
+        "aj.gob.bo",
+        "ende.bo",
+        "dab.gob.bo"
+      ]
+    },
+    "site:.py \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282966,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "ucsa.edu.py",
+        "une.edu.py",
+        "uc.edu.py",
+        "uni.edu.py",
+        "una.py",
+        "unves.edu.py",
+        "columbia.edu.py",
+        "uma.edu.py",
+        "uaa.edu.py",
+        "americana.edu.py"
+      ]
+    },
+    "site:.py \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282992,
+      "num": 20,
+      "results": 9,
+      "status": "ok",
+      "domains": [
+        "clubcentenario.org.py",
+        "cit.com.py",
+        "senatur.gov.py",
+        "icso.org.py",
+        "paraguaytv.gov.py",
+        "infocasas.com.py"
+      ]
+    },
+    "site:.py \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758282999,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "clubcentenario.org.py",
+        "snd.gov.py",
+        "rediex.gov.py",
+        "jmcapiata.gov.py",
+        "villafranca.gov.py",
+        "megacadena.com.py",
+        "paraguay.gov.py",
+        "inter.edu.py"
+      ]
+    },
+    "site:.py \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283020,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "tree.com.py",
+        "diversey.com.py",
+        "ferrazu.com.py",
+        "expansion.com.py",
+        "mic.gov.py",
+        "ingenio.com.py",
+        "paracel.com.py",
+        "serpar.com.py",
+        "camaracrecer.org.py"
+      ]
+    },
+    "site:.ve \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283035,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "ula.ve",
+        "unet.edu.ve",
+        "ucab.edu.ve",
+        "usm.edu.ve",
+        "ucv.ve",
+        "unc.edu.ve",
+        "ujap.edu.ve",
+        "unimet.edu.ve",
+        "uba.edu.ve"
+      ]
+    },
+    "site:.ve \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283049,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "snc.gob.ve",
+        "ucab.edu.ve",
+        "laizquierdadiario.com.ve",
+        "ula.ve",
+        "iutamaracay.com.ve",
+        "ucv.ve",
+        "correodelorinoco.gob.ve",
+        "realty-plus.com.ve",
+        "cslc.edu.ve"
+      ]
+    },
+    "site:.ve \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283062,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "camorucovirtual.com.ve",
+        "mindeporte.gob.ve",
+        "colegiocorazondejesus.com.ve",
+        "losarcos.edu.ve",
+        "fvf.com.ve",
+        "ucv.ve"
+      ]
+    },
+    "site:.ve \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283070,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "masvalor.com.ve",
+        "proanzoategui.org.ve",
+        "novasystem.net.ve",
+        "insopesca.gob.ve",
+        "larkin.com.ve",
+        "aysed.com.ve",
+        "qm.com.ve",
+        "midoctor24h.com.ve",
+        "cav.net.ve",
+        "ucab.edu.ve"
+      ]
+    },
+    "site:.ec \"universidad\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283080,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "udla.edu.ec",
+        "uazuay.edu.ec",
+        "educacionsuperior.gob.ec",
+        "ucuenca.edu.ec",
+        "unl.edu.ec",
+        "utpl.edu.ec",
+        "usfq.edu.ec",
+        "uta.edu.ec",
+        "uhemisferios.edu.ec",
+        "ug.edu.ec"
+      ]
+    },
+    "site:.ec \"club de golf\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283091,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "coe.org.ec",
+        "uasb.edu.ec",
+        "freelancer.ec",
+        "usfq.edu.ec",
+        "ups.edu.ec",
+        "utpl.edu.ec",
+        "flacsoandes.edu.ec",
+        "ute.edu.ec",
+        "ucsg.edu.ec"
+      ]
+    },
+    "site:.ec \"club deportivo\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283100,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "clubmacara.ec",
+        "mira.ec",
+        "deporte.gob.ec",
+        "ellaurel.gob.ec",
+        "gadcolonche.gob.ec",
+        "ups.edu.ec",
+        "juntaparroquialaltotambo.gob.ec",
+        "informatica.gob.ec"
+      ]
+    },
+    "site:.ec \"empresa\" (contacto OR contáctenos OR contacto institucional)": {
+      "ts": 1758283105,
+      "num": 20,
+      "results": 10,
+      "status": "ok",
+      "domains": [
+        "familiainstitucional.com.ec",
+        "inmobiliar.gob.ec",
+        "enamiep.gob.ec",
+        "arcotel.gob.ec",
+        "claro.com.ec",
+        "viviendaydesarrollourbano.gob.ec",
+        "yachaytech.edu.ec",
+        "emottep.gob.ec",
+        "informatica.gob.ec",
+        "www.gob.ec"
+      ]
+    }
+  }
+}

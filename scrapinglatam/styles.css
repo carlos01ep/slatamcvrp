@@ -1,0 +1,53 @@
+/* === Nube de sugerencias (SOLO en sidebar dentro de un expander) === */
+
+/* 1. Contenedor principal de los chips.
+   Cambiado a stVerticalBlock (común para st.container()), y usamos ~ para hermanos generales.
+   Esto asegura que capture el contenedor correcto después del marcador .chips-scope.
+*/
+section[data-testid="stSidebar"] div[data-testid="stExpander"] .chips-scope ~ div[data-testid="stVerticalBlock"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;  /* Reducido para más compresión */
+    align-items: center !important;
+    justify-content: flex-start !important;  /* Alinea a la izquierda para wrap natural */
+}
+
+/* 2. Contenedor de cada botón (div.stButton o row-widget.stButton).
+   Hacemos que sea lo más compacto posible: sin márgenes extras, ancho auto.
+*/
+section[data-testid="stSidebar"] div[data-testid="stExpander"] .chips-scope ~ div[data-testid="stVerticalBlock"] div.stButton {
+    display: inline-flex !important;  /* Mejor que inline-block para alineación interna */
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 3. Estilo del botón-chip.
+   Targeteamos específicamente botones con kind="secondary" y data-testid="stBaseButton-secondary" para precisión.
+   Reducimos al máximo: fuente 11px, padding mínimo (2px 8px), sin bordes extras, height implícito mínimo.
+*/
+section[data-testid="stSidebar"] div[data-testid="stExpander"] .chips-scope ~ div[data-testid="stVerticalBlock"] div.stButton > button[kind="secondary"][data-testid="stBaseButton-secondary"] {
+    background-color: #007fc8 !important;
+    color: white !important;
+    border-radius: 16px !important;
+    border: none !important;
+    font-size: 11px !important;  /* Más pequeña para compresión */
+    font-weight: 600 !important;
+    padding: 2px 8px !important;  /* Padding reducido al mínimo viable */
+    margin: 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;  /* Evita altura fija */
+    line-height: 1.1 !important;  /* Reduce espacio vertical */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s ease !important;
+    box-shadow: none !important;  /* Elimina sombras para feel más plano y pequeño */
+}
+
+/* 4. Efecto hover */
+section[data-testid="stSidebar"] div[data-testid="stExpander"] .chips-scope ~ div[data-testid="stVerticalBlock"] div.stButton > button[kind="secondary"][data-testid="stBaseButton-secondary"]:hover {
+    background-color: #009fe3 !important;
+}

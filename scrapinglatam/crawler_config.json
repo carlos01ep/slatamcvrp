@@ -1,0 +1,14 @@
+{
+  "COUNTRIES_QUERY": [
+    "site:.ar",
+    "site:.co",
+    "site:.bo",
+    "site:.py"
+  ],
+  "CATEGORIES": [
+    "colegio"
+  ],
+  "MAX_QUERIES": 4,
+  "RESULTS_PER_QUERY": 99,
+  "OUTPUT_CSV": "latam_leads.csv"
+}
