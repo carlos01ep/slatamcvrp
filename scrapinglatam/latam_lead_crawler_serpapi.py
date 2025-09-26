@@ -35,10 +35,16 @@ def load_defaults(path, fallback):
             with open(path, "r", encoding="utf-8") as fh:
                 data = json.load(fh)
             if isinstance(data, list):
+                print(f"[DEFAULTS] {len(data)} categorías cargadas desde {path}")
                 return data
+            else:
+                print(f"[DEFAULTS] Formato inválido en {path}, usando fallback")
         except Exception as e:
             print(f"[DEFAULTS] Error leyendo {path}: {e}")
+    else:
+        print(f"[DEFAULTS] No se encontró {path}, usando fallback")
     return fallback
+
 
 # --- Cargar categorías por defecto desde JSON ---
 CATEGORIES = load_defaults(DEFAULT_CATEGORIES_PATH, [
@@ -391,3 +397,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n[INFO] Proceso detenido por el usuario.")
+
