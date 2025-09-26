@@ -8,17 +8,15 @@ import sys
 import pandas as pd
 from streamlit_tags import st_tags
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # 🔹 Carpeta donde está app.py
+sys.path.append(BASE_DIR)
 
-CONFIG_PATH = "crawler_config.json"
-OUTPUT_CSV = "latam_leads.csv"
-AUDIT_PATH = "audits/latam_audit.ndjson"
-SCRIPT = "latam_lead_crawler_serpapi.py"
-
-DEFAULT_COUNTRIES = [
-    'site:.ar', 'site:.cl', 'site:.co', 'site:.pe', 'site:.uy',
-    'site:.bo', 'site:.py', 'site:.ve', 'site:.ec'
-]
+CONFIG_PATH = os.path.join(BASE_DIR, "crawler_config.json")
+OUTPUT_CSV = os.path.join(BASE_DIR, "latam_leads.csv")
+AUDIT_PATH = os.path.join(BASE_DIR, "audits", "latam_audit.ndjson")
+SCRIPT = os.path.join(BASE_DIR, "latam_lead_crawler_serpapi.py")
+STYLES_PATH = os.path.join(BASE_DIR, "styles.css")
+DEFAULT_CATEGORIES_PATH = os.path.join(BASE_DIR, "default_categories.json")
 
 # --- Cargar categorías por defecto desde un JSON externo ---
 def load_default_categories():
@@ -472,3 +470,4 @@ with st.expander("📜 Auditoría (últimos 200 eventos)", expanded=False):
         ], use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
