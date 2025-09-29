@@ -114,13 +114,16 @@ with st.sidebar:
     st.subheader("Países activos")
 
     # st.multiselect actualiza directamente st.session_state["countries_ui"]
+    # 📌 CORRECCIÓN DEL BUG DE REAPARICIÓN: 
+    # Usamos la misma clave para el widget y el estado de sesión para que Streamlit
+    # maneje la persistencia automáticamente, evitando conflictos.
     countries = st.multiselect(
         "Selecciona los países",
         options=list(COUNTRY_MAP.keys()),
         default=st.session_state["countries_ui"],
-        key="countries_multiselect" # Usar una key única
+        key="countries_ui" # <-- CLAVE DE CORRECCIÓN
     )
-    st.session_state["countries_ui"] = countries
+    # st.session_state["countries_ui"] = countries # <-- Se elimina esta asignación manual redundante
 
 
     # 🔹 Botón "Todos los países"
@@ -293,7 +296,7 @@ with col2:
     proc = st.session_state["proc"]
     is_running = st.session_state["is_running"]
 
-    if proc and proc.poll() is None:  # Proceso en ejecución
+    if proc and proc.poll() is None: # Proceso en ejecución
         
         # Leemos hasta 5 líneas de forma no bloqueante (mientras el proceso escriba rápido)
         lines_read = 0
@@ -320,7 +323,7 @@ with col2:
         st.text_area("Logs", value=st.session_state["logbuf"], height=240, key="current_logs")
         st.rerun()
 
-    elif proc and proc.poll() is not None:  # Proceso terminó
+    elif proc and proc.poll() is not None: # Proceso terminó
         st.session_state["is_running"] = False
         st.success("✅ Búsqueda **finalizada**. Proceso terminado con código de salida: " + str(proc.poll()))
         
@@ -330,7 +333,7 @@ with col2:
         # Limpiar proc para evitar re-ejecutar este bloque
         st.session_state["proc"] = None
 
-    else:  # No hay proceso activo
+    else: # No hay proceso activo
         if is_running:
              st.info("⚙️ **Crawler en ejecución** (estado previo).")
         else:
