@@ -391,37 +391,30 @@ with st.sidebar:
 st.subheader("📋 Leads Encontrados (Vista Previa)") # Título actualizado
 if os.path.exists(OUTPUT_CSV):
     try:
-        # Usar utf-8-sig para manejar posibles marcas de orden de bytes (BOM)
+        # Leer CSV
         df = pd.read_csv(OUTPUT_CSV, encoding="utf-8-sig") 
-
-        # 🔹 Quitar columnas índice sin nombre (p. ej., 'Unnamed: 0')
         df = df.loc[:, ~df.columns.str.startswith("Unnamed")]
 
-        # 🔹 Normalizar país a nombre completo ANTES de renombrar columnas
+        # Normalizar país a nombre completo
         if "country" in df.columns:
             code_to_name = {
                 "ar": "Argentina", "cl": "Chile", "co": "Colombia",
                 "pe": "Perú", "uy": "Uruguay", "bo": "Bolivia",
                 "py": "Paraguay", "ve": "Venezuela", "ec": "Ecuador"
             }
-
             def to_full_country_name(val):
-                if pd.isna(val):
-                    return val
+                if pd.isna(val): return val
                 s = str(val).strip()
-                if s in COUNTRY_MAP.keys():
-                    return s
+                if s in COUNTRY_MAP.keys(): return s
                 s_lower = s.lower()
                 if s_lower.startswith("site:."):
                     tld = s_lower.split("site:.", 1)[1].strip().lstrip(".")
                     return code_to_name.get(tld, s)
-                if len(s) == 2:
-                    return code_to_name.get(s_lower, s)
+                if len(s) == 2: return code_to_name.get(s_lower, s)
                 return s
-
             df["country"] = df["country"].apply(to_full_country_name)
             
-        # Re-ordenar columnas para la vista
+        # Reordenar columnas
         required_cols = ["country", "category", "domain", "email_best", "email_sent", "last_seen"]
         df = df[[c for c in required_cols if c in df.columns]]
 
@@ -435,7 +428,11 @@ if os.path.exists(OUTPUT_CSV):
         }
         df = df.rename(columns={k: v for k, v in rename_map.items() if k in df.columns})
 
-        # --- Filtros de la Vista Previa ---
+        # Normalizar columna Email enviado → booleana
+        if "Email enviado" in df.columns:
+            df["Email enviado"] = df["Email enviado"].astype(str).str.lower().isin(["sí", "si", "true", "1"])
+
+        # --- Filtros ---
         col1_f, col2_f, col3_f = st.columns(3)
         country_options = ["Todos"] + (sorted(df["País"].dropna().unique()) if "País" in df.columns else [])
         category_options = ["Todos"] + (sorted(df["Categoría"].dropna().unique()) if "Categoría" in df.columns else [])
@@ -447,16 +444,12 @@ if os.path.exists(OUTPUT_CSV):
         with col3_f:
             email_status = st.selectbox("Email enviado", ["Todos", "No", "Sí"])
 
-        # Manejo de fechas
         fecha_inicio, fecha_fin = None, None
         if "Fecha" in df.columns:
             df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
             valid_dates = df["Fecha"].dropna()
-
             if not valid_dates.empty:
-                min_date = valid_dates.min().date()
-                max_date = valid_dates.max().date()
-                
+                min_date, max_date = valid_dates.min().date(), valid_dates.max().date()
                 colF1, colF2 = st.columns(2)
                 with colF1:
                     fecha_inicio = st.date_input("Fecha desde", value=min_date, min_value=min_date, max_value=max_date)
@@ -470,21 +463,15 @@ if os.path.exists(OUTPUT_CSV):
         if "Categoría" in filtered.columns and category_sel != "Todos":
             filtered = filtered[filtered["Categoría"] == category_sel]
         if "Email enviado" in filtered.columns and email_status != "Todos":
-            filtered = filtered[filtered["Email enviado"] == email_status]
-            
+            bool_value = (email_status == "Sí")
+            filtered = filtered[filtered["Email enviado"] == bool_value]
         if "Fecha" in filtered.columns and fecha_inicio and fecha_fin:
-            filtered = filtered[
-                (filtered["Fecha"].dt.date >= fecha_inicio) &
-                (filtered["Fecha"].dt.date <= fecha_fin)
-            ]
+            filtered = filtered[(filtered["Fecha"].dt.date >= fecha_inicio) & (filtered["Fecha"].dt.date <= fecha_fin)]
 
-        # 🚀 Invertir el orden para mostrar más recientes primero
-        filtered_reversed = filtered.iloc[::-1]
+        # 🚀 Invertir orden
+        filtered_reversed = filtered.iloc[::-1].reset_index().rename(columns={"index": "_rowid"})
 
-        # 🚀 Resetear índice para conservar referencia al original
-        filtered_reversed = filtered_reversed.reset_index().rename(columns={"index": "_rowid"})
-
-        # 🚀 Mostrar tabla editable con interruptores
+        # 🚀 Tabla editable con checkboxes
         editable_df = st.data_editor(
             filtered_reversed.head(100),
             use_container_width=True,
@@ -498,15 +485,14 @@ if os.path.exists(OUTPUT_CSV):
             }
         )
 
-        # Guardar automáticamente los cambios como Sí/No
+        # Guardar si cambió
         if not editable_df.equals(filtered_reversed.head(100)):
-            editable_df["Email enviado"] = editable_df["Email enviado"].map(lambda x: "Sí" if x else "No")
-
-            # 🔹 Usar la columna "_rowid" para actualizar las filas correctas en df
             for _, row in editable_df.iterrows():
                 df.at[row["_rowid"], "Email enviado"] = row["Email enviado"]
 
-            # Guardar con nombres originales
+            # Convertir de nuevo a Sí/No antes de guardar
+            df["Email enviado"] = df["Email enviado"].map(lambda x: "Sí" if x else "No")
+
             df_out = df.rename(columns={v: k for k, v in rename_map.items()})
             df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
             st.success("✅ Cambios guardados automáticamente en el CSV")
@@ -597,6 +583,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
