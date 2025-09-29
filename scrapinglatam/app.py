@@ -372,6 +372,19 @@ with col2:
 
     proc = st.session_state["proc"]
     is_running = st.session_state["is_running"]
+    current_queries = st.session_state["query_count"]
+    
+    # 1. Calcule el porcentaje de progreso (Asegura que no se divide por cero y no excede 1.0)
+    if max_queries > 0:
+        progress_ratio = min(1.0, current_queries / max_queries)
+    else:
+        progress_ratio = 0.0
+
+    # 2. Muestre la barra de progreso (siempre visible)
+    progress_bar = st.progress(
+        progress_ratio, 
+        text=f"Progreso de Consultas: **{current_queries}/{max_queries}** ({int(progress_ratio * 100)}%)"
+    )
 
     # --- Lógica de captura de logs (debe permanecer aquí para leer el subproceso) ---
     if proc and proc.poll() is None: # Proceso en ejecución
@@ -379,13 +392,16 @@ with col2:
         # Leemos logs de forma no bloqueante
         lines_read = 0
         log_chunk = ""
+        
         try:
-            while lines_read < 5:
+            # Leer hasta 5 líneas por rerun o hasta que se vacíe el buffer
+            while lines_read < 5: 
                 line = proc.stdout.readline()
                 if not line: # La tubería está vacía por ahora
                     break 
                 log_chunk += line
                 if "[QUERY]" in line:
+                    # Actualizar el contador de consultas
                     st.session_state["query_count"] += 1
                 lines_read += 1
         except Exception:
@@ -395,18 +411,27 @@ with col2:
         st.session_state["logbuf"] += log_chunk
         
         # --- ESTADO VISIBLE (arriba) ---
-        st.info(f"⚙️ **Crawler en ejecución** (Consultas: {st.session_state['query_count']}/{max_queries}). Recargando logs...")
+        st.info(f"⚙️ **Crawler en ejecución**. Recopilando logs y actualizando progreso...")
 
-        st.rerun() # Forzar rerun para actualizar el estado
+        # Forzar rerun solo si hay logs o el proceso sigue vivo para actualizar UI/logs
+        if lines_read > 0 or proc.poll() is None:
+            time.sleep(0.5) # Pausa breve para no sobrecargar el rerunning
+            st.rerun() 
 
     elif proc and proc.poll() is not None: # Proceso terminó
         st.session_state["is_running"] = False
+        
+        # 3. Actualizar barra a 100% al finalizar
+        progress_bar.progress(1.0, text=f"Progreso de Consultas: **{current_queries}/{max_queries} (100%)**")
+
         # --- ESTADO VISIBLE (arriba) ---
         st.success("✅ Búsqueda **finalizada**. Proceso terminado con código de salida: " + str(proc.poll()))
         
         st.session_state["proc"] = None
 
     else: # No hay proceso activo
+        # El progreso ya se muestra correctamente debido a que st.progress se inicializa con
+        # el estado persistente (current_queries)
         if is_running:
              # --- ESTADO VISIBLE (arriba) ---
              st.info("⚙️ **Crawler en ejecución** (estado previo).")
@@ -640,6 +665,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
