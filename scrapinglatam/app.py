@@ -94,6 +94,12 @@ def write_config(countries_codes, categories, max_queries, results_per_query):
     with open(CONFIG_PATH, "w", encoding="utf-8") as fh:
         json.dump(cfg, fh, ensure_ascii=False, indent=2)
 
+# --- CALLBACK DEL BOTÓN (Define el valor de todos los países) ---
+def select_all_countries():
+    """Define el estado de sesión de países con todos los disponibles.
+       Se ejecuta con on_click para evitar el error de StreamlitAPIException."""
+    st.session_state["countries_ui"] = list(COUNTRY_MAP.keys())
+
 
 # ------------------------------------------------------------------
 # 🔹 CONFIGURACIÓN EN EL SIDEBAR
@@ -104,7 +110,7 @@ serpapi_key = st.sidebar.text_input("SERPAPI_KEY", type="password", help="Tu API
 # --- Países ---
 countries_default = config.get("COUNTRIES_QUERY", DEFAULT_COUNTRIES)
 
-# 📌 SIMPLIFICACIÓN: Inicializar el estado de sesión si no existe.
+# 📌 Inicializar el estado de sesión si no existe.
 if "countries_ui" not in st.session_state:
     st.session_state["countries_ui"] = [
         name for name, code in COUNTRY_MAP.items() if code in countries_default
@@ -113,29 +119,26 @@ if "countries_ui" not in st.session_state:
 with st.sidebar:
     st.subheader("Países activos")
 
-    # 📌 CORRECCIÓN: El multiselect usa una clave diferente ("countries_multiselect") 
-    # y su valor devuelto se usa para actualizar el estado de sesión ("countries_ui").
-    countries_selected = st.multiselect(
+    # 📌 SOLUCIÓN AL BUG DE REAPARICIÓN: Usamos la misma clave.
+    # Streamlit maneja la persistencia automáticamente.
+    st.multiselect(
         "Selecciona los países",
         options=list(COUNTRY_MAP.keys()),
-        default=st.session_state["countries_ui"],
-        key="countries_multiselect" # Volvemos a una clave no conflictiva
+        # Lee el estado de sesión
+        default=st.session_state["countries_ui"], 
+        # La clave es la misma que la variable de sesión
+        key="countries_ui" 
     )
-    
-    # 📌 SOLUCIÓN AL BUG DE REAPARICIÓN: 
-    # Actualizamos el estado de sesión con el valor del multiselect. 
-    # El botón "Seleccionar Todos" sobrescribirá esto en el siguiente bloque si es pulsado.
-    st.session_state["countries_ui"] = countries_selected
-
 
     # 🔹 Botón "Todos los países"
-    if st.button("🌍 Seleccionar Todos los Países"):
-        # Esto sobrescribe el valor del multiselect, lo cual es correcto para esta acción
-        # y funciona porque "countries_ui" NO es la clave del widget.
-        st.session_state["countries_ui"] = list(COUNTRY_MAP.keys())
-        st.rerun()
+    # 📌 SOLUCIÓN AL ERROR DEL BOTÓN: Usamos on_click para ejecutar la modificación 
+    # del estado de forma segura (callback).
+    if st.button("🌍 Seleccionar Todos los Países", on_click=select_all_countries):
+        # El cuerpo del if se ejecuta solo si el botón es presionado, 
+        # pero la acción de modificar el estado ya se hizo en el callback.
+        st.rerun() # Forzar rerun para que el multiselect se actualice con el nuevo estado
 
-# 🔹 Convertir nombres a códigos site:.xx
+# 🔹 Convertir nombres a códigos site:.xx (usando el estado final del multiselect)
 countries_codes = [COUNTRY_MAP[name] for name in st.session_state["countries_ui"]]
 
 
