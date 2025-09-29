@@ -61,8 +61,8 @@ st.set_page_config(page_title="LATAM Lead Crawler", layout="wide")
 st.title("Plataforma de Rastreo (SerpAPI)") # Título actualizado
 
 # --- Cargar CSS ---
-if os.path.exists("styles.css"):
-    with open("styles.css") as f:
+if os.path.exists(STYLES_PATH):
+    with open(STYLES_PATH, "r", encoding="utf-8") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # --- Cargar config guardada ---
@@ -665,6 +665,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
