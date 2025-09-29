@@ -95,7 +95,7 @@ def write_config(countries_codes, categories, max_queries, results_per_query):
 # --- CALLBACK DEL BOTÓN (Define el valor de todos los países) ---
 def select_all_countries():
     """Define el estado de sesión de países con todos los disponibles.
-       Se ejecuta con on_click para evitar el error de StreamlitAPIException."""
+        Se ejecuta con on_click para evitar el error de StreamlitAPIException."""
     st.session_state["countries_ui"] = list(COUNTRY_MAP.keys())
 
 
@@ -484,8 +484,12 @@ if os.path.exists(OUTPUT_CSV):
                 (filtered["Fecha"].dt.date <= fecha_fin)
             ]
 
-        st.dataframe(filtered.tail(100), use_container_width=True)
-        st.caption(f"Mostrando las últimas 100 de {len(filtered)} filas filtradas (Total de registros: {len(df)})")
+        # 🚀 MODIFICACIÓN CLAVE: Invertir el orden del DataFrame filtrado
+        # para que las filas más recientes (que estaban al final) aparezcan primero.
+        filtered_reversed = filtered.iloc[::-1]
+
+        st.dataframe(filtered_reversed.head(100), use_container_width=True)
+        st.caption(f"Mostrando las **100 filas más recientes** de {len(filtered)} filas filtradas (Total de registros: {len(df)})")
 
     except Exception as e:
         st.error(f"Error al leer el CSV. Asegúrate de que el formato de las columnas sea correcto: {e}")
