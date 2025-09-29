@@ -83,7 +83,7 @@ config = load_config()
 
 # --- Función para guardar la configuración ---
 def write_config(countries_codes, categories, max_queries, results_per_query):
-    """Guarda la configuración actual en el ruta definida."""
+    """Guarda la configuración actual en la ruta definida."""
     cfg = {
         "COUNTRIES_QUERY": countries_codes,
         "CATEGORIES": categories,
@@ -176,6 +176,21 @@ with st.sidebar:
         else:
             st.caption("✅ Todas las categorías ya están activas")
 
+# --- Nuevas variables de estado para el cálculo dinámico de MAX_QUERIES (CORRECCIÓN) ---
+
+# Calcular el valor dinámico inicial (necesario para inicializar el estado)
+initial_dynamic_calc = max(1, 
+    len(st.session_state.get("countries_ui", [])) * len(st.session_state.get("categories", []))
+)
+
+# Rastrear el último cálculo dinámico para detectar cambios en países/categorías
+if "last_calculated_max_queries" not in st.session_state:
+    st.session_state["last_calculated_max_queries"] = initial_dynamic_calc
+
+# Inicializar la entrada del usuario si no existe (usando config o el primer cálculo)
+if "max_queries_input" not in st.session_state:
+    st.session_state["max_queries_input"] = config.get("MAX_QUERIES", initial_dynamic_calc)
+    
 # --- Otros parámetros ---
 colA, colB = st.sidebar.columns(2)
 
@@ -183,27 +198,21 @@ with colA:
     # 🔹 Calcular dinámicamente MAX_QUERIES (multiplicación)
     dynamic_max_queries = max(1, len(st.session_state["countries_ui"]) * len(st.session_state["categories"]))
 
-    # 📌 INICIO DE LA CORRECCIÓN: Gestión del valor inicial/mínimo
-    
-    # 1. Inicializar el valor de la sesión si es la primera vez (usando config o cálculo dinámico)
-    if "max_queries_input" not in st.session_state:
-        # Usar el valor de la config, o si no existe, el valor dinámico.
-        initial_val = config.get("MAX_QUERIES", dynamic_max_queries)
-        st.session_state["max_queries_input"] = initial_val
-    
-    # 2. Forzar que el valor de sesión sea al menos igual al valor dinámico calculado.
-    # Esto asegura que si el usuario aumenta países/categorías, el campo se actualice.
-    # Si el usuario lo ha modificado manualmente a un valor mayor (e.g., 500), 
-    # mantendrá el valor mayor, a menos que dynamic_max_queries lo supere.
-    if st.session_state["max_queries_input"] < dynamic_max_queries:
+    # 📌 LÓGICA DE REAL-TIME RESET: 
+    # 1. Detectar si la demanda de consultas ha cambiado (países x categorías).
+    if dynamic_max_queries != st.session_state["last_calculated_max_queries"]:
+        # Si la demanda cambió, forzamos el campo de entrada a ese nuevo valor.
+        # Esto sobreescribe cualquier valor manual anterior, cumpliendo con la actualización en tiempo real.
         st.session_state["max_queries_input"] = dynamic_max_queries
+        
+        # Y actualizamos el rastreador para el siguiente rerun
+        st.session_state["last_calculated_max_queries"] = dynamic_max_queries
     
-    # 3. Crear el widget, usando el estado de sesión como valor y clave.
-    # Streamlit lo actualiza automáticamente al cambiar países/categorías (por el paso 2).
+    # 2. Crear el widget, usando el estado de sesión como valor y clave.
     max_queries_input = st.number_input(
         "NÚMERO DE CONSULTAS",
         min_value=1, max_value=500,
-        value=st.session_state["max_queries_input"], # Usa el valor inicial/mínimo garantizado
+        value=st.session_state["max_queries_input"], # Usa el valor reseteado/manual
         step=1,
         key="max_queries_input" # Mantiene el valor en session_state si el usuario interactúa
     )
@@ -530,6 +539,8 @@ with st.expander("📜 Auditoría (últimos 200 eventos)", expanded=False):
             st.metric("Eventos (últimos)", len(audit_rows))
         with col2_a:
             st.metric("Exclusiones", excl)
+        with col3_a:
+            st.metric("Con emails", sum(1 for r in audit_rows if r.get("emails_found")))
         with col3_a:
             st.metric("Con emails", sum(1 for r in audit_rows if r.get("emails_found")))
         with col4_a:
