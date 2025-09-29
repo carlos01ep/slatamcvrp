@@ -120,7 +120,6 @@ with st.sidebar:
     st.subheader("Países activos")
 
     # 📌 SOLUCIÓN AL BUG DE REAPARICIÓN: Usamos la misma clave.
-    # Streamlit maneja la persistencia automáticamente.
     st.multiselect(
         "Selecciona los países",
         options=list(COUNTRY_MAP.keys()),
@@ -131,11 +130,8 @@ with st.sidebar:
     )
 
     # 🔹 Botón "Todos los países"
-    # 📌 SOLUCIÓN AL ERROR DEL BOTÓN: Usamos on_click para ejecutar la modificación 
-    # del estado de forma segura (callback).
+    # 📌 SOLUCIÓN AL ERROR DEL BOTÓN: Usamos on_click.
     if st.button("🌍 Seleccionar Todos los Países", on_click=select_all_countries):
-        # El cuerpo del if se ejecuta solo si el botón es presionado, 
-        # pero la acción de modificar el estado ya se hizo en el callback.
         st.rerun() # Forzar rerun para que el multiselect se actualice con el nuevo estado
 
 # 🔹 Convertir nombres a códigos site:.xx (usando el estado final del multiselect)
@@ -184,16 +180,32 @@ with st.sidebar:
 colA, colB = st.sidebar.columns(2)
 
 with colA:
-    # 🔹 Calcular dinámicamente MAX_QUERIES (default)
+    # 🔹 Calcular dinámicamente MAX_QUERIES (multiplicación)
     dynamic_max_queries = max(1, len(st.session_state["countries_ui"]) * len(st.session_state["categories"]))
 
-    # 🔹 Permitir al usuario sobrescribir el valor si quiere
+    # 📌 INICIO DE LA CORRECCIÓN: Gestión del valor inicial/mínimo
+    
+    # 1. Inicializar el valor de la sesión si es la primera vez (usando config o cálculo dinámico)
+    if "max_queries_input" not in st.session_state:
+        # Usar el valor de la config, o si no existe, el valor dinámico.
+        initial_val = config.get("MAX_QUERIES", dynamic_max_queries)
+        st.session_state["max_queries_input"] = initial_val
+    
+    # 2. Forzar que el valor de sesión sea al menos igual al valor dinámico calculado.
+    # Esto asegura que si el usuario aumenta países/categorías, el campo se actualice.
+    # Si el usuario lo ha modificado manualmente a un valor mayor (e.g., 500), 
+    # mantendrá el valor mayor, a menos que dynamic_max_queries lo supere.
+    if st.session_state["max_queries_input"] < dynamic_max_queries:
+        st.session_state["max_queries_input"] = dynamic_max_queries
+    
+    # 3. Crear el widget, usando el estado de sesión como valor y clave.
+    # Streamlit lo actualiza automáticamente al cambiar países/categorías (por el paso 2).
     max_queries_input = st.number_input(
         "NÚMERO DE CONSULTAS",
         min_value=1, max_value=500,
-        value=config.get("MAX_QUERIES", dynamic_max_queries),
+        value=st.session_state["max_queries_input"], # Usa el valor inicial/mínimo garantizado
         step=1,
-        key="max_queries_input" # Usar una key
+        key="max_queries_input" # Mantiene el valor en session_state si el usuario interactúa
     )
     max_queries = max_queries_input
 
