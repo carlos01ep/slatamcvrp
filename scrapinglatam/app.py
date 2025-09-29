@@ -113,21 +113,25 @@ if "countries_ui" not in st.session_state:
 with st.sidebar:
     st.subheader("Países activos")
 
-    # st.multiselect actualiza directamente st.session_state["countries_ui"]
-    # 📌 CORRECCIÓN DEL BUG DE REAPARICIÓN: 
-    # Usamos la misma clave para el widget y el estado de sesión para que Streamlit
-    # maneje la persistencia automáticamente, evitando conflictos.
-    countries = st.multiselect(
+    # 📌 CORRECCIÓN: El multiselect usa una clave diferente ("countries_multiselect") 
+    # y su valor devuelto se usa para actualizar el estado de sesión ("countries_ui").
+    countries_selected = st.multiselect(
         "Selecciona los países",
         options=list(COUNTRY_MAP.keys()),
         default=st.session_state["countries_ui"],
-        key="countries_ui" # <-- CLAVE DE CORRECCIÓN
+        key="countries_multiselect" # Volvemos a una clave no conflictiva
     )
-    # st.session_state["countries_ui"] = countries # <-- Se elimina esta asignación manual redundante
+    
+    # 📌 SOLUCIÓN AL BUG DE REAPARICIÓN: 
+    # Actualizamos el estado de sesión con el valor del multiselect. 
+    # El botón "Seleccionar Todos" sobrescribirá esto en el siguiente bloque si es pulsado.
+    st.session_state["countries_ui"] = countries_selected
 
 
     # 🔹 Botón "Todos los países"
     if st.button("🌍 Seleccionar Todos los Países"):
+        # Esto sobrescribe el valor del multiselect, lo cual es correcto para esta acción
+        # y funciona porque "countries_ui" NO es la clave del widget.
         st.session_state["countries_ui"] = list(COUNTRY_MAP.keys())
         st.rerun()
 
@@ -316,7 +320,6 @@ with col2:
 
         st.session_state["logbuf"] += log_chunk
         
-        # 📌 CORRECCIÓN CLAVE: Eliminar time.sleep(1). 
         # Forzar rerun sin bloquear la UI
         st.info(f"⚙️ **Crawler en ejecución** (Consultas: {st.session_state['query_count']}/{max_queries}). Recargando...")
 
