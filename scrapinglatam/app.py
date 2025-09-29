@@ -497,6 +497,9 @@ if os.path.exists(OUTPUT_CSV):
             df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
             st.success("✅ Cambios guardados automáticamente en el CSV")
 
+            # 🚀 Fuerza a refrescar la tabla para evitar el bug
+            st.rerun()
+            
         st.caption(f"Mostrando las **100 filas más recientes** de {len(filtered)} filas filtradas (Total de registros: {len(df)})")
 
     except Exception as e:
@@ -583,6 +586,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
