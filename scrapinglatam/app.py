@@ -58,7 +58,7 @@ COUNTRY_MAP = {
 }
 
 st.set_page_config(page_title="LATAM Lead Crawler", layout="wide")
-st.title("🕷️ Plataforma de Rastreo SEO (SerpAPI)") # Título actualizado
+st.title("Plataforma de Rastreo (SerpAPI)") # Título actualizado
 
 # --- Cargar CSS ---
 if os.path.exists("styles.css"):
@@ -640,6 +640,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
