@@ -103,8 +103,63 @@ def select_all_countries():
 # 🔹 CONFIGURACIÓN EN EL SIDEBAR
 # ------------------------------------------------------------------
 st.sidebar.header("⚙️ Configuración del Rastreo") # Título actualizado
-serpapi_key = st.sidebar.text_input("SERPAPI_KEY", type="password", help="Tu API key de SerpAPI")
 
+# ------------------------------------------------------------------
+# 🔹 Estado de créditos de SerpAPI
+# ------------------------------------------------------------------
+import requests
+
+def get_serpapi_balance(api_key: str):
+    try:
+        url = f"https://serpapi.com/account?api_key={api_key}"
+        resp = requests.get(url, timeout=10)
+        data = resp.json()
+        # luego extraes:
+        used = int(data.get("this_month_usage", data.get("searches_per_month", 0)))
+        remaining = int(data.get("plan_searches_left", data.get("total_searches_left", 0)))
+        # el límite del plan se deduce:
+        limit = used + remaining
+        return used, remaining, limit
+    except Exception as e:
+        st.error(f"Error en get_serpapi_balance: {e}")
+        return None, None, None
+
+# Campo de entrada de la API Key (con key único)
+serpapi_key = st.sidebar.text_input(
+    "SERPAPI_KEY",
+    type="password",
+    help="Tu API key de SerpAPI",
+    key="serpapi_key_input"
+)
+
+# Mostrar estado de créditos si hay API Key
+if serpapi_key:
+    used, remaining, limit = get_serpapi_balance(serpapi_key)
+    if used is not None:
+        percent_used = int((used / limit) * 100) if limit > 0 else 0
+        percent_remaining = 100 - percent_used
+
+        st.sidebar.markdown("### 🔋 Estado de créditos")
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            st.metric("Consumidos", used)
+        with col2:
+            st.metric("Disponibles", remaining)
+
+        # Barra bicolor con CSS
+        st.sidebar.markdown(f"""
+            <div style="width: 100%; background-color: #ddd; border-radius: 8px; overflow: hidden; height: 20px;">
+                <div style="width: {percent_used}%; background-color: #e74c3c; height: 20px; float: left;"></div>
+                <div style="width: {percent_remaining}%; background-color: #2ecc71; height: 20px; float: left;"></div>
+            </div>
+            <p style="text-align:center; font-size:12px; margin-top:4px;">{used} / {limit} búsquedas usadas</p>
+        """, unsafe_allow_html=True)
+
+    else:
+        st.sidebar.warning("⚠️ No se pudo obtener el balance de créditos.")
+else:
+    st.sidebar.info("Introduce tu SERPAPI_KEY para ver el estado de créditos.")
+#serpapi_key = st.sidebar.text_input("SERPAPI_KEY", type="password", help="Tu API key de SerpAPI")
 # --- Países ---
 countries_default = config.get("COUNTRIES_QUERY", DEFAULT_COUNTRIES)
 
@@ -585,6 +640,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
