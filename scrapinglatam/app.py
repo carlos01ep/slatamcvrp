@@ -495,7 +495,8 @@ if os.path.exists(OUTPUT_CSV):
 
             df_out = df.rename(columns={v: k for k, v in rename_map.items()})
             df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
-            st.success("✅ Cambios guardados automáticamente en el CSV")
+            # Opción 1 (si tu versión de Streamlit soporta st.toast)
+            st.toast("✅ Cambios guardados automáticamente en el CSV", icon="💾")
 
             # 🚀 Fuerza a refrescar la tabla para evitar el bug
             st.rerun()
@@ -586,6 +587,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
