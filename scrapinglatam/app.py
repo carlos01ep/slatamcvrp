@@ -9,30 +9,6 @@ import pandas as pd
 # Asegúrate de que streamlit_tags esté instalado: pip install streamlit-tags
 from streamlit_tags import st_tags
 
-st.markdown("""
-    <style>
-    .toast {
-        visibility: visible;
-        min-width: 250px;
-        margin-left: -125px;
-        background-color: #4BB543;
-        color: #fff;
-        text-align: center;
-        border-radius: 8px;
-        padding: 12px;
-        position: fixed;
-        z-index: 1;
-        left: 50%;
-        bottom: 30px;
-        font-size: 16px;
-        animation: fadein 0.5s, fadeout 0.5s 2.5s;
-    }
-    @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-    @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-    </style>
-    <div class="toast">✅ Cambios guardados automáticamente en el CSV</div>
-""", unsafe_allow_html=True)
-
 # 🔹 Directorio base del proyecto (raíz del repo en Streamlit Cloud)
 BASE_DIR = os.getcwd()
 sys.path.append(BASE_DIR)
@@ -519,10 +495,37 @@ if os.path.exists(OUTPUT_CSV):
 
             df_out = df.rename(columns={v: k for k, v in rename_map.items()})
             df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
-            # Opción 2 (si no tienes st.toast)
+            # 🚀 Mostrar toast temporal (3 segundos)
             st.markdown("""
-            <div class="toast">✅ Cambios guardados automáticamente en el CSV</div>
+                <style>
+                .toast {
+                    visibility: visible;
+                    min-width: 250px;
+                    margin-left: -125px;
+                    background-color: #4BB543;  /* verde éxito */
+                    color: #fff;
+                    text-align: center;
+                    border-radius: 8px;
+                    padding: 12px;
+                    position: fixed;
+                    z-index: 9999;
+                    left: 50%;
+                    bottom: 30px;
+                    font-size: 16px;
+                    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+                }
+                @keyframes fadein {
+                    from {bottom: 0; opacity: 0;}
+                    to {bottom: 30px; opacity: 1;}
+                }
+                @keyframes fadeout {
+                    from {bottom: 30px; opacity: 1;}
+                    to {bottom: 0; opacity: 0;}
+                }
+                </style>
+                <div class="toast">✅ Cambios guardados automáticamente en el CSV</div>
             """, unsafe_allow_html=True)
+
 
             # 🚀 Fuerza a refrescar la tabla para evitar el bug
             st.rerun()
@@ -613,6 +616,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
