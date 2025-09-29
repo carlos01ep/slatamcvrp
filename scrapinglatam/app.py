@@ -410,15 +410,12 @@ if os.path.exists(OUTPUT_CSV):
                 if pd.isna(val):
                     return val
                 s = str(val).strip()
-                # 1. Ya es un nombre completo?
                 if s in COUNTRY_MAP.keys():
                     return s
-                # 2. Es un código site:.xx?
                 s_lower = s.lower()
                 if s_lower.startswith("site:."):
                     tld = s_lower.split("site:.", 1)[1].strip().lstrip(".")
-                    return code_to_name.get(tld, s) # Si no lo encuentra, devuelve el original
-                # 3. Es solo el código (ar, cl, etc.)?
+                    return code_to_name.get(tld, s)
                 if len(s) == 2:
                     return code_to_name.get(s_lower, s)
                 return s
@@ -449,14 +446,12 @@ if os.path.exists(OUTPUT_CSV):
         with col2_f:
             category_sel = st.selectbox("Filtrar por categoría", category_options)
         with col3_f:
-            email_status = st.selectbox("Email enviado", ["Todos", "No", "Yes"])
+            email_status = st.selectbox("Email enviado", ["Todos", "No", "Sí"])
 
         # Manejo de fechas
         fecha_inicio, fecha_fin = None, None
         if "Fecha" in df.columns:
             df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-            
-            # Limitar a fechas válidas para evitar errores de min/max en NaT
             valid_dates = df["Fecha"].dropna()
 
             if not valid_dates.empty:
@@ -484,8 +479,36 @@ if os.path.exists(OUTPUT_CSV):
                 (filtered["Fecha"].dt.date <= fecha_fin)
             ]
 
+        # 🚀 Mostrar switches para "Email enviado"
+        if "Email enviado" in filtered.columns:
+            st.markdown("### ✉️ Actualizar estado de envío")
+            updated_states = []
+            for idx, row in filtered.iterrows():
+                col_a, col_b, col_c, col_d = st.columns([2,2,3,2])
+                with col_a:
+                    st.write(row.get("País", "-"))
+                with col_b:
+                    st.write(row.get("Dominio", "-"))
+                with col_c:
+                    st.write(row.get("Email", "-"))
+                with col_d:
+                    checked = st.checkbox(
+                        "Enviado",
+                        value=(str(row["Email enviado"]).lower() in ["sí", "si", "true", "1"]),
+                        key=f"switch_{idx}"
+                    )
+                    updated_states.append("Sí" if checked else "No")
+
+            # Guardar cambios en el DataFrame y CSV
+            filtered.loc[:, "Email enviado"] = updated_states
+            df.loc[filtered.index, "Email enviado"] = updated_states
+
+            # Guardar con nombres originales
+            df_out = df.rename(columns={v: k for k, v in rename_map.items()})
+            df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
+            st.success("✅ Cambios guardados automáticamente en el CSV")
+
         # 🚀 MODIFICACIÓN CLAVE: Invertir el orden del DataFrame filtrado
-        # para que las filas más recientes (que estaban al final) aparezcan primero.
         filtered_reversed = filtered.iloc[::-1]
 
         st.dataframe(filtered_reversed.head(100), use_container_width=True)
@@ -495,6 +518,7 @@ if os.path.exists(OUTPUT_CSV):
         st.error(f"Error al leer el CSV. Asegúrate de que el formato de las columnas sea correcto: {e}")
 else:
     st.info("No se ha generado el CSV aún o la ruta es incorrecta. Asegúrate de que exista en: `scrapinglatam/latam_leads.csv`")
+
 
 # ------------------------------------------------------------------
 # 🔹 AUDITORÍA Y LOGS (en desplegable)
@@ -574,3 +598,4 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
