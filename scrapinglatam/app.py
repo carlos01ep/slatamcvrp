@@ -12,12 +12,16 @@ from streamlit_tags import st_tags
 BASE_DIR = os.getcwd()
 sys.path.append(BASE_DIR)
 
+# --- Definición de rutas ---
+# Rutas dentro de la carpeta 'scrapinglatam'
 CONFIG_PATH = os.path.join(BASE_DIR, "scrapinglatam", "crawler_config.json")
 OUTPUT_CSV = os.path.join(BASE_DIR, "scrapinglatam", "latam_leads.csv")
 AUDIT_PATH = os.path.join(BASE_DIR, "scrapinglatam", "audits", "latam_audit.ndjson")
 SCRIPT = os.path.join(BASE_DIR, "scrapinglatam", "latam_lead_crawler_serpapi.py")
-STYLES_PATH = os.path.join(BASE_DIR, "scrapinglatam", "styles.css")
-DEFAULT_CATEGORIES_PATH = os.path.join(BASE_DIR, "scrapinglatam", "default_categories.json")
+
+# Rutas en la raíz del repositorio (ajustadas para coincidir con la lógica de carga)
+STYLES_PATH = os.path.join(BASE_DIR, "styles.css")
+DEFAULT_CATEGORIES_PATH = os.path.join(BASE_DIR, "default_categories.json")
 
 
 DEFAULT_COUNTRIES = [
@@ -27,7 +31,8 @@ DEFAULT_COUNTRIES = [
 
 # --- Cargar categorías por defecto desde un JSON externo ---
 def load_default_categories():
-    path = "default_categories.json"
+    # Usamos la ruta simplificada ya que el script está en la raíz y busca allí
+    path = "default_categories.json" 
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as fh:
@@ -57,6 +62,7 @@ st.set_page_config(page_title="LATAM Lead Crawler", layout="wide")
 st.title("🕸️ LATAM Lead Crawler – SerpAPI")
 
 # --- Cargar CSS ---
+# Usamos la misma lógica de ruta simplificada para el CSS
 if os.path.exists("styles.css"):
     with open("styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -78,6 +84,14 @@ config = load_config()
 # ------------------------------------------------------------------
 st.sidebar.header("Configuración")
 serpapi_key = st.sidebar.text_input("SERPAPI_KEY", type="password", help="Tu API key de SerpAPI")
+
+# --- Inicialización de Session State para la detección de override ---
+if "max_queries_manual_override" not in st.session_state:
+    st.session_state["max_queries_manual_override"] = False
+
+def set_max_queries_override():
+    """Callback para establecer la bandera de anulación manual."""
+    st.session_state["max_queries_manual_override"] = True
 
 # --- Países ---
 countries_default = config.get("COUNTRIES_QUERY", DEFAULT_COUNTRIES)
@@ -108,14 +122,14 @@ with st.sidebar:
     # 🔹 Botón ahora dice "Todos los países"
     if st.button("🌍 Todos los países"):
         st.session_state["pending_countries_update"] = list(COUNTRY_MAP.keys())
+        st.session_state["max_queries_manual_override"] = False # Reset override on country change
         st.rerun()
 
 # 🔹 Convertir nombres a códigos site:.xx
 countries_codes = [COUNTRY_MAP[name] for name in st.session_state["countries_ui"]]
 if config.get("COUNTRIES_QUERY") != countries_codes:
     config["COUNTRIES_QUERY"] = countries_codes
-    with open(CONFIG_PATH, "w", encoding="utf-8") as fh:
-        json.dump(config, fh, ensure_ascii=False, indent=2)
+    # Nota: La config se guarda completamente antes de iniciar la búsqueda.
 
 # --- Categorías ---
 categories_default = config.get("CATEGORIES", DEFAULT_CATEGORIES)
@@ -148,38 +162,59 @@ with st.sidebar:
                 for cat in suggested:
                     if st.button(cat, key=f"suggest_cat_{cat}"):
                         st.session_state["pending_categories_update"] = st.session_state["categories"] + [cat]
+                        st.session_state["max_queries_manual_override"] = False # Reset override on category change
                         st.rerun()
         else:
             st.caption("✅ Todas las categorías ya están activas")
-    # 🔹 Botón de reset categorías comentado por ahora
-    #if st.button("🔄 Resetear categorías"):
-    #    st.session_state["pending_categories_update"] = DEFAULT_CATEGORIES.copy()
-    #    st.rerun()
+
 
 if config.get("CATEGORIES") != st.session_state["categories"]:
     config["CATEGORIES"] = st.session_state["categories"]
-    with open(CONFIG_PATH, "w", encoding="utf-8") as fh:
-        json.dump(config, fh, ensure_ascii=False, indent=2)
+    # Nota: La config se guarda completamente antes de iniciar la búsqueda.
 
 
 # --- Otros parámetros ---
 colA, colB = st.sidebar.columns(2)
 
-with colA:
-    # 🔹 Calcular dinámicamente MAX_QUERIES (default)
-    dynamic_max_queries = max(1, len(st.session_state["countries_ui"]) * len(st.session_state["categories"]))
+# ------------------------------------------------------------------
+# 🔑 FIX PARA MAX_QUERIES
+# ------------------------------------------------------------------
+# 1. Calcular el valor dinámico (Paises * Categorías)
+dynamic_max_queries = max(1, len(st.session_state["countries_ui"]) * len(st.session_state["categories"]))
+saved_config_value = config.get("MAX_QUERIES")
 
+# 2. Determinar el valor que se usará en el widget (initial_value)
+initial_value = dynamic_max_queries
+
+if st.session_state["max_queries_manual_override"]:
+    # Si el usuario ya lo tocó, usamos el valor que tenga el widget en su estado actual,
+    # o el último valor guardado si es la primera carga de sesión.
+    if saved_config_value is not None:
+        initial_value = saved_config_value
+    # Si initial_value sigue siendo el cálculo, es una excepción, y usamos el valor del widget
+    # del estado de sesión si existe, aunque no está garantizado. Lo dejamos en el valor guardado
+    # para forzar el override.
+elif saved_config_value is not None and saved_config_value != dynamic_max_queries:
+    # Caso especial: Se cargó la app, hay un valor guardado que NO es el cálculo actual,
+    # pero el override no se ha detectado en esta sesión. Respetamos el valor guardado.
+    initial_value = saved_config_value
+
+
+with colA:
     # 🔹 Permitir al usuario sobrescribir el valor si quiere
     max_queries = st.number_input(
         "NÚMERO DE CONSULTAS",
         min_value=1, max_value=500,
-        value=config.get("MAX_QUERIES", dynamic_max_queries),
-        step=1
+        value=int(initial_value), # Usamos el valor inicial determinado
+        step=1,
+        key="max_queries_input", # Clave para referenciar en st.session_state
+        on_change=set_max_queries_override # Detectar interacción del usuario
     )
+    
+    # 3. La variable max_queries toma el valor del widget, que ahora se actualiza
+    # automáticamente a dynamic_max_queries (si no hay override).
+    # Si el usuario hace una anulación manual, se usa el valor de 'max_queries_input'.
 
-    # 🔹 Si no lo cambia, usar el cálculo automático
-    if max_queries == config.get("MAX_QUERIES", dynamic_max_queries):
-        max_queries = dynamic_max_queries
 
 with colB:
     results_per_query = st.number_input(
@@ -195,7 +230,8 @@ def write_config():
     cfg = {
         "COUNTRIES_QUERY": countries_codes,
         "CATEGORIES": st.session_state.get("categories", []),
-        "MAX_QUERIES": int(max_queries),
+        # USAMOS EL VALOR FINAL DEL WIDGET (ya sea auto o manual)
+        "MAX_QUERIES": int(st.session_state["max_queries_input"]), 
         "RESULTS_PER_QUERY": int(results_per_query),
         "OUTPUT_CSV": output_csv.strip(),
     }
@@ -477,6 +513,3 @@ with st.expander("📜 Auditoría (últimos 200 eventos)", expanded=False):
         ], use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
-
-
-
