@@ -479,39 +479,31 @@ if os.path.exists(OUTPUT_CSV):
                 (filtered["Fecha"].dt.date <= fecha_fin)
             ]
 
-        # 🚀 Mostrar switches para "Email enviado"
-        if "Email enviado" in filtered.columns:
-            st.markdown("### ✉️ Actualizar estado de envío")
-            updated_states = []
-            for idx, row in filtered.iterrows():
-                col_a, col_b, col_c, col_d = st.columns([2,2,3,2])
-                with col_a:
-                    st.write(row.get("País", "-"))
-                with col_b:
-                    st.write(row.get("Dominio", "-"))
-                with col_c:
-                    st.write(row.get("Email", "-"))
-                with col_d:
-                    checked = st.checkbox(
-                        "Enviado",
-                        value=(str(row["Email enviado"]).lower() in ["sí", "si", "true", "1"]),
-                        key=f"switch_{idx}"
-                    )
-                    updated_states.append("Sí" if checked else "No")
+        # 🚀 Invertir el orden para mostrar más recientes primero
+        filtered_reversed = filtered.iloc[::-1]
 
-            # Guardar cambios en el DataFrame y CSV
-            filtered.loc[:, "Email enviado"] = updated_states
-            df.loc[filtered.index, "Email enviado"] = updated_states
+        # 🚀 Mostrar tabla editable con interruptores
+        editable_df = st.data_editor(
+            filtered_reversed.head(100),
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Email enviado": st.column_config.CheckboxColumn(
+                    "Email enviado",
+                    help="Marcar si el email fue enviado",
+                    default=False
+                )
+            }
+        )
 
-            # Guardar con nombres originales
+        # Guardar automáticamente los cambios como Sí/No
+        if not editable_df.equals(filtered_reversed.head(100)):
+            editable_df["Email enviado"] = editable_df["Email enviado"].map(lambda x: "Sí" if x else "No")
+            df.update(editable_df)
             df_out = df.rename(columns={v: k for k, v in rename_map.items()})
             df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
             st.success("✅ Cambios guardados automáticamente en el CSV")
 
-        # 🚀 MODIFICACIÓN CLAVE: Invertir el orden del DataFrame filtrado
-        filtered_reversed = filtered.iloc[::-1]
-
-        st.dataframe(filtered_reversed.head(100), use_container_width=True)
         st.caption(f"Mostrando las **100 filas más recientes** de {len(filtered)} filas filtradas (Total de registros: {len(df)})")
 
     except Exception as e:
@@ -598,4 +590,5 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
