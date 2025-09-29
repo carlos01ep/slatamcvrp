@@ -56,7 +56,7 @@ CATEGORIES = load_defaults(DEFAULT_CATEGORIES_PATH, [
 
 MAX_QUERIES = 36
 RESULTS_PER_QUERY = 20
-REQUERY_TTL_DAYS = 0  # si >0, reconsulta dominios tras X días
+REQUERY_TTL_DAYS = 0 # si >0, reconsulta dominios tras X días
 
 # --- Overrides opcionales desde JSON ---
 def _override_globals(d):
@@ -142,7 +142,7 @@ def open_csv_with_schema(path, fieldnames):
     return f, writer
 
 # --- Control de dominios procesados ---
-seen_domains = {}  # dominio: timestamp última consulta
+seen_domains = {} # dominio: timestamp última consulta
 
 def load_seen_domains():
     """Carga dominios ya procesados desde el CSV existente."""
@@ -189,13 +189,35 @@ def get_query_permutations():
 
 # --- Separar categoría y país de un query ---
 def split_query(query: str):
-    parts = query.split()
-    category = parts[0] if parts else ""
+    """
+    Separa la categoría y el código de país del query.
+    IMPORTANTE: La categoría ahora es la frase completa sin el 'site:.xx'.
+    """
+    # Inicialmente, la categoría es la consulta completa
+    category = query
     country_code = ""
-    for p in parts:
-        if p.startswith("site:."):
-            country_code = p.replace("site:.", "")
+
+    # Buscamos el código de país (site:.xx)
+    for part in query.split():
+        if part.startswith("site:."):
+            country_code = part.replace("site:.", "")
+            
+            # Eliminamos el código de país de la categoría y limpiamos espacios
+            category = category.replace(part, "").strip()
+            # Si la categoría queda vacía (solo se buscó el país), usamos el query original
+            if not category:
+                category = query
             break
+            
+    # También limpiamos espacios extra que pudieron quedar
+    category = re.sub(r'\s+', ' ', category).strip()
+    
+    # Manejar el caso donde el query solo contenía la categoría y no el país
+    if not country_code and ' ' in category:
+        # En este caso, la CATEGORY es la consulta completa, que ya está asignada
+        # y no hay código de país (country_code seguirá siendo "")
+        pass
+        
     return category, country_code
 
 # Regex
@@ -267,7 +289,9 @@ async def fetch_website_emails(session, url, priority):
     phones_found = []
 
     try:
-        async with session.get(url, ssl=False, timeout=15) as response:
+        # Usar un user-agent común para evitar bloqueos
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        async with session.get(url, ssl=False, timeout=15, headers=headers) as response:
             http_status = response.status
             content = await response.text(errors="ignore")
             emails_found = clean_emails(EMAIL_RE.findall(content))
@@ -348,7 +372,8 @@ async def process_query(session, query, params, csv_writer):
         # Añadir datos de query
         row["query"] = query
         category, country = split_query(query)
-        row["category"] = category
+        # ESTA LÍNEA AHORA GUARDA LA CATEGORÍA COMPLETA (Ej: "futbol americano")
+        row["category"] = category 
         row["country"] = country
         row["email_sent"] = "No"
 
@@ -372,7 +397,9 @@ async def main():
     csvfile, csv_writer = open_csv_with_schema(OUTPUT_CSV, FIELDNAMES)
 
     try:
-        async with aiohttp.ClientSession() as session:
+        # Usamos un límite de conexiones para no saturar
+        connector = aiohttp.TCPConnector(limit=20)
+        async with aiohttp.ClientSession(connector=connector) as session:
             for query in queries_to_run:
                 params = {
                     "engine": "google",
@@ -382,7 +409,7 @@ async def main():
                 }
                 await process_query(session, query, params, csv_writer)
                 csvfile.flush()
-                time.sleep(1)
+                time.sleep(1) # Pequeña pausa entre consultas a SerpAPI
     finally:
         try:
             csvfile.flush()
@@ -397,4 +424,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n[INFO] Proceso detenido por el usuario.")
-
