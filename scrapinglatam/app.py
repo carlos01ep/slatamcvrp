@@ -58,11 +58,9 @@ COUNTRY_MAP = {
 }
 
 st.set_page_config(page_title="LATAM Lead Crawler", layout="wide")
-st.title("🕸️ LATAM Lead Crawler – SerpAPI")
+st.title("🕷️ Plataforma de Rastreo SEO (SerpAPI)") # Título actualizado
 
 # --- Cargar CSS ---
-# 📌 NOTA: Aquí se asume que styles.css está en el directorio raíz.
-# Si está dentro de 'scrapinglatam', usa STYLES_PATH
 if os.path.exists("styles.css"):
     with open("styles.css") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -104,7 +102,7 @@ def select_all_countries():
 # ------------------------------------------------------------------
 # 🔹 CONFIGURACIÓN EN EL SIDEBAR
 # ------------------------------------------------------------------
-st.sidebar.header("Configuración")
+st.sidebar.header("⚙️ Configuración del Rastreo") # Título actualizado
 serpapi_key = st.sidebar.text_input("SERPAPI_KEY", type="password", help="Tu API key de SerpAPI")
 
 # --- Países ---
@@ -117,7 +115,7 @@ if "countries_ui" not in st.session_state:
     ]
 
 with st.sidebar:
-    st.subheader("Países activos")
+    st.subheader("🌍 Filtro Geográfico") # Título actualizado
 
     # 📌 SOLUCIÓN AL BUG DE REAPARICIÓN: Usamos la misma clave.
     st.multiselect(
@@ -131,7 +129,7 @@ with st.sidebar:
 
     # 🔹 Botón "Todos los países"
     # 📌 SOLUCIÓN AL ERROR DEL BOTÓN: Usamos on_click.
-    if st.button("🌍 Seleccionar Todos los Países", on_click=select_all_countries):
+    if st.button("🗺️ Seleccionar Todos los Países", on_click=select_all_countries): # Icono actualizado
         st.rerun() # Forzar rerun para que el multiselect se actualice con el nuevo estado
 
 # 🔹 Convertir nombres a códigos site:.xx (usando el estado final del multiselect)
@@ -144,7 +142,7 @@ if "categories" not in st.session_state:
     st.session_state["categories"] = categories_default.copy()
 
 with st.sidebar:
-    st.subheader("Categorías activas")
+    st.subheader("🏷️ Palabras Clave / Temas") # Título actualizado
     # st_tags actualiza st.session_state["categories"]
     st.session_state["categories"] = st_tags(
         label="",
@@ -202,7 +200,6 @@ with colA:
     # 1. Detectar si la demanda de consultas ha cambiado (países x categorías).
     if dynamic_max_queries != st.session_state["last_calculated_max_queries"]:
         # Si la demanda cambió, forzamos el campo de entrada a ese nuevo valor.
-        # Esto sobreescribe cualquier valor manual anterior, cumpliendo con la actualización en tiempo real.
         st.session_state["max_queries_input"] = dynamic_max_queries
         
         # Y actualizamos el rastreador para el siguiente rerun
@@ -210,7 +207,7 @@ with colA:
     
     # 2. Crear el widget, usando el estado de sesión como valor y clave.
     max_queries_input = st.number_input(
-        "NÚMERO DE CONSULTAS",
+        "Máx. Consultas (País x Tema)", # Título actualizado
         min_value=1, max_value=500,
         value=st.session_state["max_queries_input"], # Usa el valor reseteado/manual
         step=1,
@@ -221,7 +218,8 @@ with colA:
 
 with colB:
     results_per_query = st.number_input(
-        "RESULTS_PER_QUERY", min_value=1, max_value=100,
+        "Resultados por Búsqueda", # Título traducido
+        min_value=1, max_value=100,
         value=config.get("RESULTS_PER_QUERY", 20), step=1,
         key="results_per_query_input" # Usar una key
     )
@@ -258,7 +256,7 @@ def launch_crawler():
     )
 
 # ------------------------------------------------------------------
-# 🔹 BLOQUE SUPERIOR EN MAIN: Controles (1/3) | Estado & Logs (2/3)
+# 🔹 BLOQUE SUPERIOR EN MAIN: Controles (1/3) | Estado (2/3)
 # ------------------------------------------------------------------
 col1, col2 = st.columns([1, 2])
 
@@ -274,7 +272,7 @@ if "is_running" not in st.session_state:
 
 
 with col1:
-    st.subheader("Controles")
+    st.subheader("▶️ Control de Ejecución") # Título actualizado
     if st.button("🔍 Iniciar Búsqueda", use_container_width=True):
         if not serpapi_key:
             st.warning("Define **SERPAPI_KEY** para iniciar.")
@@ -291,15 +289,13 @@ with col1:
             st.success("Crawler iniciado. Recopilando logs...")
             st.rerun() # Forzar rerun para iniciar inmediatamente el bucle de logs
 
-    if st.button("⏹️ Detener", use_container_width=True):
+    if st.button("⏹️ Detener Búsqueda", use_container_width=True): # Texto actualizado
         if st.session_state.get("proc") and st.session_state["proc"].poll() is None:
             try:
                 # Intento de parada gradual (SIGINT)
                 st.session_state["proc"].send_signal(signal.SIGINT)
                 
                 # Esperar 1 segundo para un cierre limpio.
-                # NOTA: Este time.sleep() es aceptable *solo* porque se ejecuta al presionar un botón
-                # y el usuario ya está esperando una acción de terminación.
                 time.sleep(1) 
                 
                 if st.session_state["proc"].poll() is None:
@@ -315,18 +311,17 @@ with col1:
         else:
             st.info("No hay proceso de rastreo activo para detener.")
 
-# Placeholder para el área de logs (ayuda a mantener la posición en la UI)
-log_placeholder = st.empty()
 
 with col2:
-    st.subheader("📈 Estado y Logs")
+    st.subheader("📈 Estado Actual del Rastreo") # Título actualizado
 
     proc = st.session_state["proc"]
     is_running = st.session_state["is_running"]
 
+    # --- Lógica de captura de logs (debe permanecer aquí para leer el subproceso) ---
     if proc and proc.poll() is None: # Proceso en ejecución
         
-        # Leemos hasta 5 líneas de forma no bloqueante (mientras el proceso escriba rápido)
+        # Leemos logs de forma no bloqueante
         lines_read = 0
         log_chunk = ""
         try:
@@ -344,32 +339,25 @@ with col2:
 
         st.session_state["logbuf"] += log_chunk
         
-        # Forzar rerun sin bloquear la UI
-        st.info(f"⚙️ **Crawler en ejecución** (Consultas: {st.session_state['query_count']}/{max_queries}). Recargando...")
+        # --- ESTADO VISIBLE (arriba) ---
+        st.info(f"⚙️ **Crawler en ejecución** (Consultas: {st.session_state['query_count']}/{max_queries}). Recargando logs...")
 
-        st.text_area("Logs", value=st.session_state["logbuf"], height=240, key="current_logs")
-        st.rerun()
+        st.rerun() # Forzar rerun para actualizar el estado
 
     elif proc and proc.poll() is not None: # Proceso terminó
         st.session_state["is_running"] = False
+        # --- ESTADO VISIBLE (arriba) ---
         st.success("✅ Búsqueda **finalizada**. Proceso terminado con código de salida: " + str(proc.poll()))
         
-        # Mostrar logs finales
-        st.text_area("Logs", value=st.session_state["logbuf"], height=240, key="final_logs")
-        
-        # Limpiar proc para evitar re-ejecutar este bloque
         st.session_state["proc"] = None
 
     else: # No hay proceso activo
         if is_running:
+             # --- ESTADO VISIBLE (arriba) ---
              st.info("⚙️ **Crawler en ejecución** (estado previo).")
         else:
+            # --- ESTADO VISIBLE (arriba) ---
             st.write("📌 **Crawler detenido / Inactivo.** Pulse 'Iniciar Búsqueda' para comenzar.")
-            
-        if st.session_state["logbuf"]:
-            st.text_area("Logs", value=st.session_state["logbuf"], height=240, key="inactive_logs")
-        else:
-            st.empty().text_area("Logs", value="Logs aparecerán aquí al iniciar el rastreo...", height=240, key="empty_logs")
 
 
 # ------------------------------------------------------------------
@@ -377,7 +365,7 @@ with col2:
 # ------------------------------------------------------------------
 with st.sidebar:
     st.markdown("---")
-    st.subheader("Descargar resultados")
+    st.subheader("💾 Gestión de Archivos") # Título actualizado
     if os.path.exists(OUTPUT_CSV):
         with open(OUTPUT_CSV, "rb") as f:
             st.download_button(
@@ -400,7 +388,7 @@ with st.sidebar:
 # ------------------------------------------------------------------
 # 🔹 VISTA PREVIA DEL CSV MAESTRO (pantalla completa)
 # ------------------------------------------------------------------
-st.subheader("📂 Vista previa de Leads (CSV maestro)")
+st.subheader("📋 Leads Encontrados (Vista Previa)") # Título actualizado
 if os.path.exists(OUTPUT_CSV):
     try:
         # Usar utf-8-sig para manejar posibles marcas de orden de bytes (BOM)
@@ -505,10 +493,30 @@ else:
     st.info("No se ha generado el CSV aún o la ruta es incorrecta. Asegúrate de que exista en: `scrapinglatam/latam_leads.csv`")
 
 # ------------------------------------------------------------------
-# 🔹 AUDITORÍA (en desplegable)
+# 🔹 AUDITORÍA Y LOGS (en desplegable)
 # ------------------------------------------------------------------
-with st.expander("📜 Auditoría (últimos 200 eventos)", expanded=False):
+with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Título actualizado
 
+    # --- LOGS DE PROCESO (MOVIMIENTO DE CÓDIGO) ---
+    st.markdown("#### 💬 Logs en Tiempo Real")
+    log_msg = "Logs aparecerán aquí al iniciar el rastreo..."
+    if st.session_state["logbuf"]:
+        log_msg = st.session_state["logbuf"]
+    
+    # Usar una clave dinámica para asegurar que el área de texto se actualiza correctamente
+    log_key = "current_logs" if st.session_state.get("proc") and st.session_state["proc"].poll() is None else "final_logs"
+    
+    st.text_area(
+        "Salida del subproceso (Scroll para ver los últimos eventos)", 
+        value=log_msg, 
+        height=240, 
+        key=log_key
+    )
+    
+    st.markdown("---")
+    st.markdown("#### 📊 Métricas de Auditoría (latam_audit.ndjson)")
+
+    # --- BOTÓN DE LIMPIEZA DE AUDITORÍA ---
     if st.button("🧹 Limpiar auditoría", key="clear_btn"):
         try:
             if os.path.exists(AUDIT_PATH):
@@ -518,6 +526,7 @@ with st.expander("📜 Auditoría (últimos 200 eventos)", expanded=False):
         except Exception as e:
             st.error(f"No se pudo limpiar: {e}")
 
+    # --- CARGA Y DISPLAY DE MÉTRICAS DE AUDITORÍA ---
     audit_rows = []
     if os.path.exists(AUDIT_PATH):
         try:
@@ -540,9 +549,9 @@ with st.expander("📜 Auditoría (últimos 200 eventos)", expanded=False):
         with col2_a:
             st.metric("Exclusiones", excl)
         with col3_a:
+            # Reutilizar col3_a para la métrica de emails, luego mover el siguiente
             st.metric("Con emails", sum(1 for r in audit_rows if r.get("emails_found")))
-        with col3_a:
-            st.metric("Con emails", sum(1 for r in audit_rows if r.get("emails_found")))
+        # La métrica de tiempo medio está en col4_a
         with col4_a:
             avg_time = int(sum(r.get("duration_ms", 0) or 0 for r in audit_rows) / max(1, len(audit_rows)))
             st.metric("Tiempo medio (ms)", avg_time)
