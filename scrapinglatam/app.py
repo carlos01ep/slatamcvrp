@@ -399,7 +399,6 @@ if os.path.exists(OUTPUT_CSV):
 
         # 🔹 Normalizar país a nombre completo ANTES de renombrar columnas
         if "country" in df.columns:
-            reverse_country_map = {v: k for k, v in COUNTRY_MAP.items()}
             code_to_name = {
                 "ar": "Argentina", "cl": "Chile", "co": "Colombia",
                 "pe": "Perú", "uy": "Uruguay", "bo": "Bolivia",
@@ -482,6 +481,9 @@ if os.path.exists(OUTPUT_CSV):
         # 🚀 Invertir el orden para mostrar más recientes primero
         filtered_reversed = filtered.iloc[::-1]
 
+        # 🚀 Resetear índice para conservar referencia al original
+        filtered_reversed = filtered_reversed.reset_index().rename(columns={"index": "_rowid"})
+
         # 🚀 Mostrar tabla editable con interruptores
         editable_df = st.data_editor(
             filtered_reversed.head(100),
@@ -499,7 +501,12 @@ if os.path.exists(OUTPUT_CSV):
         # Guardar automáticamente los cambios como Sí/No
         if not editable_df.equals(filtered_reversed.head(100)):
             editable_df["Email enviado"] = editable_df["Email enviado"].map(lambda x: "Sí" if x else "No")
-            df.update(editable_df)
+
+            # 🔹 Usar la columna "_rowid" para actualizar las filas correctas en df
+            for _, row in editable_df.iterrows():
+                df.at[row["_rowid"], "Email enviado"] = row["Email enviado"]
+
+            # Guardar con nombres originales
             df_out = df.rename(columns={v: k for k, v in rename_map.items()})
             df_out.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
             st.success("✅ Cambios guardados automáticamente en el CSV")
@@ -590,5 +597,6 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
