@@ -50,4 +50,59 @@ section[data-testid="stSidebar"] div[data-testid="stExpander"] .chips-scope ~ di
 /* 4. Efecto hover */
 section[data-testid="stSidebar"] div[data-testid="stExpander"] .chips-scope ~ div[data-testid="stVerticalBlock"] div.stButton > button[kind="secondary"][data-testid="stBaseButton-secondary"]:hover {
     background-color: #009fe3 !important;
+
 }
+
+
+
+
+/* 2. Estilo de Switch (Rojo/No, Verde/Sí) para la columna Checkbox de data_editor */
+/* Adaptado para apuntar a los elementos de checkbox dentro del st.data_editor */
+.stDataFrame div[data-testid*="stDataEditor"] label[data-testid="stCheckbox"] {
+    position: relative;
+    display: inline-block;
+    width: 44px; /* Ancho del switch */
+    height: 24px; /* Altura del switch */
+}
+
+/* Ocultar el input nativo */
+.stDataFrame div[data-testid*="stDataEditor"] input[type="checkbox"] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Pista/Fondo del switch (por defecto: ROJO para NO/FALSO) */
+.stDataFrame div[data-testid*="stDataEditor"] input[type="checkbox"] + div {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ef4444; /* Tailwind red-500 for 'No' */
+    transition: .4s;
+    border-radius: 34px; /* Bordes redondeados */
+}
+
+/* Perilla/Botón del switch */
+.stDataFrame div[data-testid*="stDataEditor"] input[type="checkbox"] + div:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+/* Estado Marcado (Verde para SÍ/VERDADERO) */
+.stDataFrame div[data-testid*="stDataEditor"] input:checked + div {
+    background-color: #22c55e; /* Tailwind green-500 for 'Yes' */
+}
+
+/* Mover perilla a la derecha cuando está marcado */
+.stDataFrame div[data-testid*="stDataEditor"] input:checked + div:before {
+    transform: translateX(20px);
