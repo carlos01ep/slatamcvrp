@@ -593,7 +593,7 @@ else:
 with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Título actualizado
 
     # --- LOGS DE PROCESO (MOVIMIENTO DE CÓDIGO) ---
-    st.markdown("#### 💬 Logs en Tiempo Real")
+    st.markdown("#### 💬 Logs")
     log_msg = "Logs aparecerán aquí al iniciar el rastreo..."
     if st.session_state["logbuf"]:
         log_msg = st.session_state["logbuf"]
@@ -665,6 +665,7 @@ with st.expander("📜 Auditoría y Logs de Ejecución", expanded=False): # Tít
         ]), use_container_width=True)
     else:
         st.info("Aún no hay auditoría registrada.")
+
 
 
 
